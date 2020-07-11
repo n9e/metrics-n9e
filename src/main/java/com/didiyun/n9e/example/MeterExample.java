@@ -1,35 +1,30 @@
 package com.didiyun.n9e.example;
 
-import com.codahale.metrics.Counter;
+import com.codahale.metrics.Meter;
 import com.codahale.metrics.MetricFilter;
 import com.codahale.metrics.MetricRegistry;
 import com.didiyun.n9e.metrics.N9EReporter;
 import com.didiyun.n9e.metrics.N9ESender;
 import com.didiyun.n9e.tools.Hostname;
 
-import java.util.Queue;
 import java.util.Random;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-public class CounterExample {
-
-    public static Queue<String> q = new LinkedBlockingQueue<String>();
-
-    public static Counter pendingJobs;
+public class MeterExample {
 
     public static Random random = new Random();
 
-    public static void addJob(String job) {
-        pendingJobs.inc();
-        q.offer(job);
+    public static void request(Meter meter){
+        System.out.println("request");
+        meter.mark();
     }
 
-    public static String takeJob() {
-        pendingJobs.dec();
-        return q.poll();
+    public static void request(Meter meter, int n){
+        while(n > 0){
+            request(meter);
+            n--;
+        }
     }
-
 
     public static void main(String[] args) throws InterruptedException {
         MetricRegistry registry = new MetricRegistry();
@@ -43,20 +38,12 @@ public class CounterExample {
                 .build(n9eSender);
         reporter.start(1, TimeUnit.MINUTES);
 
-        pendingJobs = registry.counter(MetricRegistry.name(Queue.class,"pending-jobs","size"));
+        Meter meterTps = registry.meter(MetricRegistry.name(MeterExample.class,"request","tps"));
 
-        int num = 1;
         while(true){
-            Thread.sleep(200);
-            if (random.nextDouble() > 0.7){
-                String job = takeJob();
-                System.out.println("take job : "+job);
-            }else{
-                String job = "Job-"+num;
-                addJob(job);
-                System.out.println("add job : "+job);
-            }
-            num++;
+            request(meterTps,random.nextInt(5));
+            Thread.sleep(1000);
         }
+
     }
 }
