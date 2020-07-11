@@ -214,7 +214,7 @@ public class N9EReporter extends ScheduledReporter {
         return MetricRegistry.name(prefix, components);
     }
 
-    // 每次发送一条不太合适，最好做成批次
+    // TODO: 每次发送一条不太合适，最好做成批次，怎么做呢？
     private void send(String name, Object value, long timestamp) throws IOException {
         n9eSender.send(name, tags, value, timestamp);
     }
