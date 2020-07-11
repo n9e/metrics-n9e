@@ -24,8 +24,21 @@ public class N9ESender {
         return "N9ESender(" + address + ")";
     }
 
-    public void send(String name, String tags, Object value, long timestamp) throws IOException {
-        // 调用address指定的地址，post json数据即可
+    // TODO: 调用address指定的地址，post json数据即可
+    /*
+    * e.g.
+    * [
+    *   {
+    *       "metric": "com.a.x.request.latency",
+    *       "tags": "service=a,module=b",
+    *       "value": 12.21,
+    *       "timestamp": 12345676543
+    *   }
+    * ]
+    *
+    * */
+    public void send(String metric, String tags, Object value, long timestamp) throws IOException {
+
     }
 
 }
