@@ -1,7 +1,5 @@
 # metrics-n9e
 
-依赖：
-
 [metrics](https://metrics.dropwizard.io/)是一个很通用的指标埋点SDK，本项目的作用是适配[n9e](https://github.com/didi/nightingale)，把埋点指标推送给n9e：
 
 ```
