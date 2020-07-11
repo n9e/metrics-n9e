@@ -142,63 +142,42 @@ public class N9EReporter extends ScheduledReporter {
     private void reportTimer(String name, Timer timer, long timestamp) throws IOException {
         final Snapshot snapshot = timer.getSnapshot();
 
-        send(prefix(name, "max"), convertDuration(snapshot.getMax()), timestamp);
-        send(prefix(name, "mean"), convertDuration(snapshot.getMean()), timestamp);
-        send(prefix(name, "min"), convertDuration(snapshot.getMin()), timestamp);
-        send(prefix(name, "stddev"),
-                convertDuration(snapshot.getStdDev()),
-                timestamp);
-        send(prefix(name, "p50"),
-                convertDuration(snapshot.getMedian()),
-                timestamp);
-        send(prefix(name, "p75"),
-                convertDuration(snapshot.get75thPercentile()),
-                timestamp);
-        send(prefix(name, "p95"),
-                convertDuration(snapshot.get95thPercentile()),
-                timestamp);
-        send(prefix(name, "p98"),
-                convertDuration(snapshot.get98thPercentile()),
-                timestamp);
-        send(prefix(name, "p99"),
-                convertDuration(snapshot.get99thPercentile()),
-                timestamp);
-        send(prefix(name, "p999"),
-                convertDuration(snapshot.get999thPercentile()),
-                timestamp);
+        send(prefix(name), convertDuration(snapshot.getMax()), timestamp, "func=max");
+        send(prefix(name), convertDuration(snapshot.getMean()), timestamp, "func=mean");
+        send(prefix(name), convertDuration(snapshot.getMin()), timestamp, "func=min");
+        send(prefix(name), convertDuration(snapshot.getStdDev()),timestamp, "func=stddev");
+
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p50");
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p75");
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p95");
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p98");
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p99");
+        send(prefix(name), convertDuration(snapshot.get999thPercentile()), timestamp, "quantile=p999");
 
         reportMetered(name, timer, timestamp);
     }
 
     private void reportMetered(String name, Metered meter, long timestamp) throws IOException {
         send(prefix(name, "count"), meter.getCount(), timestamp);
-        send(prefix(name, "m1_rate"),
-                convertRate(meter.getOneMinuteRate()),
-                timestamp);
-        send(prefix(name, "m5_rate"),
-                convertRate(meter.getFiveMinuteRate()),
-                timestamp);
-        send(prefix(name, "m15_rate"),
-                convertRate(meter.getFifteenMinuteRate()),
-                timestamp);
-        send(prefix(name, "mean_rate"),
-                convertRate(meter.getMeanRate()),
-                timestamp);
+        send(prefix(name, "m1_rate"), convertRate(meter.getOneMinuteRate()), timestamp);
+        send(prefix(name, "m5_rate"), convertRate(meter.getFiveMinuteRate()), timestamp);
+        send(prefix(name, "m15_rate"), convertRate(meter.getFifteenMinuteRate()), timestamp);
+        send(prefix(name, "mean_rate"), convertRate(meter.getMeanRate()), timestamp);
     }
 
     private void reportHistogram(String name, Histogram histogram, long timestamp) throws IOException {
         final Snapshot snapshot = histogram.getSnapshot();
         send(prefix(name, "count"), histogram.getCount(), timestamp);
-        send(prefix(name, "max"), snapshot.getMax(), timestamp);
-        send(prefix(name, "mean"), snapshot.getMean(), timestamp);
-        send(prefix(name, "min"), snapshot.getMin(), timestamp);
-        send(prefix(name, "stddev"), snapshot.getStdDev(), timestamp);
-        send(prefix(name, "p50"), snapshot.getMedian(), timestamp);
-        send(prefix(name, "p75"), snapshot.get75thPercentile(), timestamp);
-        send(prefix(name, "p95"), snapshot.get95thPercentile(), timestamp);
-        send(prefix(name, "p98"), snapshot.get98thPercentile(), timestamp);
-        send(prefix(name, "p99"), snapshot.get99thPercentile(), timestamp);
-        send(prefix(name, "p999"), snapshot.get999thPercentile(), timestamp);
+        send(prefix(name), snapshot.getMax(), timestamp, "func=max");
+        send(prefix(name), snapshot.getMean(), timestamp, "func=mean");
+        send(prefix(name), snapshot.getMin(), timestamp, "func=min");
+        send(prefix(name), snapshot.getStdDev(), timestamp, "func=stddev");
+        send(prefix(name), snapshot.getMedian(), timestamp, "quantile=p50");
+        send(prefix(name), snapshot.get75thPercentile(), timestamp, "quantile=p75");
+        send(prefix(name), snapshot.get95thPercentile(), timestamp, "quantile=p95");
+        send(prefix(name), snapshot.get98thPercentile(), timestamp, "quantile=p98");
+        send(prefix(name), snapshot.get99thPercentile(), timestamp, "quantile=p99");
+        send(prefix(name), snapshot.get999thPercentile(), timestamp, "quantile=p999");
     }
 
     private void reportCounter(String name, Counter counter, long timestamp) throws IOException {
@@ -218,5 +197,13 @@ public class N9EReporter extends ScheduledReporter {
 
     private void send(String name, Object value, long timestamp) throws IOException {
         n9eSender.send(name, tags, value, timestamp);
+    }
+
+    private void send(String name, Object value, long timestamp, String tags) throws IOException {
+        if (this.tags == null || "".equals(this.tags)) {
+            n9eSender.send(name, tags, value, timestamp);
+        } else {
+            n9eSender.send(name, this.tags + "," + tags, value, timestamp);
+        }
     }
 }
