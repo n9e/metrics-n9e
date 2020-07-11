@@ -132,6 +132,8 @@ public class N9EReporter extends ScheduledReporter {
             for (Map.Entry<String, Timer> entry : timers.entrySet()) {
                 reportTimer(entry.getKey(), entry.getValue(), timestamp);
             }
+
+            n9eSender.flush();
         } catch (IOException e) {
             LOGGER.warn("Unable to report to N9E", n9eSender, e);
         }
@@ -214,7 +216,6 @@ public class N9EReporter extends ScheduledReporter {
         return MetricRegistry.name(prefix, components);
     }
 
-    // TODO: 每次发送一条不太合适，最好做成批次，怎么做呢？
     private void send(String name, Object value, long timestamp) throws IOException {
         n9eSender.send(name, tags, value, timestamp);
     }
