@@ -58,18 +58,6 @@ public class N9ESender {
         }
     }
 
-    /*
-     * e.g.
-     * [
-     *   {
-     *       "metric": "com.a.x.request.latency",
-     *       "tags": "service=a,module=b",
-     *       "value": 12.21,
-     *       "timestamp": 12345676543
-     *   }
-     * ]
-     *
-     * */
     private void writeMetrics() throws IOException {
         if (metrics.size() == 0) {
             return;
@@ -89,6 +77,19 @@ public class N9ESender {
         }
     }
 
+    /*
+     * TODO: item.name就是metric，整理成json array，发送即可
+     * e.g.
+     * [
+     *   {
+     *       "metric": "com.a.x.request.latency",
+     *       "tags": "service=a,module=b",
+     *       "value": 12.21,
+     *       "timestamp": 12345676543
+     *   }
+     * ]
+     *
+     * */
     private void post() throws IOException {
         for (MetricTuple item : metrics) {
             System.out.println(item.toString());
