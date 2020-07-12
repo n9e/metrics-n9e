@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.didiyun.n9e.tools.HttpSender;
 import com.sun.istack.internal.NotNull;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,27 @@ public class N9ESender {
             this.batchSize = batchSize;
         }
         this.httpSender = new HttpSender(address);
+    }
+
+    public N9ESender(@NotNull String address, @NotNull OkHttpClient okHttpClient) {
+        this.address = address;
+        if (okHttpClient == null) {
+            this.httpSender = new HttpSender(address);
+        } else {
+            this.httpSender = new HttpSender(address, okHttpClient);
+        }
+    }
+
+    public N9ESender(@NotNull String address, @NotNull int batchSize, @NotNull OkHttpClient okHttpClient) {
+        this.address = address;
+        if (batchSize > 1) {
+            this.batchSize = batchSize;
+        }
+        if (okHttpClient == null) {
+            this.httpSender = new HttpSender(address);
+        } else {
+            this.httpSender = new HttpSender(address, okHttpClient);
+        }
     }
 
     @Override
@@ -94,7 +116,7 @@ public class N9ESender {
 
     /**
      * N9ESender常量数据
-     * */
+     */
     private interface N9ESenderConstant {
         String METRIC_TUPLE_ENDPOINT = "endpoint";
         String METRIC_TUPLE_METRIC = "metric";

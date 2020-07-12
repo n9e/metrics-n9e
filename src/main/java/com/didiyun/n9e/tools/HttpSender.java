@@ -1,5 +1,6 @@
 package com.didiyun.n9e.tools;
 
+import com.sun.istack.internal.NotNull;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +13,16 @@ import java.io.IOException;
 public class HttpSender {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpSender.class);
-    private volatile static OkHttpClient okHttpClient = null;
+    private volatile OkHttpClient okHttpClient = null;
     private String url;
 
-    public HttpSender(String url) {
+    public HttpSender(@NotNull String url) {
         this.url = url;
+    }
+
+    public HttpSender(@NotNull String url,@NotNull OkHttpClient okHttpClient){
+        this.url = url;
+        this.okHttpClient = okHttpClient;
     }
 
     /**
