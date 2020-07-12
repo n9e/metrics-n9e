@@ -18,11 +18,12 @@ public class N9ESender {
     // address是collector的地址，举例：http://127.0.0.1:2058/api/collector/push?nid=23
     private String address;
     private HttpSender httpSender;
-    private int batchSize = N9ESenderConstant.DEFAULT_BATCHSIZE;
+    private int batchSize = N9ESenderConstant.DEFAULT_BATCH_SIZE;
     private List<MetricTuple> metrics = new LinkedList<MetricTuple>();
 
-    public N9ESender(String address) {
+    public N9ESender(@NotNull String address) {
         this.address = address;
+        this.httpSender = new HttpSender(address);
     }
 
     public N9ESender(@NotNull String address, @NotNull int batchSize) {
@@ -51,15 +52,9 @@ public class N9ESender {
     }
 
     private void writeMetrics() throws IOException {
-        if (metrics.size() == 0) {
-            return;
-        }
-
         try {
             post();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Wrote {} metrics", metrics.size());
-            }
+            LOGGER.debug("Wrote {} metrics", metrics.size());
         } catch (IOException e) {
             throw e;
         } finally {
@@ -70,7 +65,6 @@ public class N9ESender {
     }
 
     /*
-     * TODO: item.name就是metric，整理成json array，发送即可
      * e.g.
      * [
      *   {
@@ -93,14 +87,8 @@ public class N9ESender {
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_TIMESTAMP, item.getTimestamp());
             arrayJson.add(itemJson);
         }
-        try {
-            httpSender.sendHttp(arrayJson.toJSONString());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-            // 当出现数据异常,对异常数据进行日志记录
-            httpSender.writeContent(arrayJson.toJSONString());
-            throw new IOException(e.getMessage());
-        }
+
+        httpSender.postJSON(arrayJson.toJSONString());
     }
 
     /**
@@ -108,9 +96,9 @@ public class N9ESender {
      * */
     private interface N9ESenderConstant {
         String METRIC_TUPLE_METRIC = "metric";
-        String METRIC_TUPLE_TIMESTAMP = "name";
+        String METRIC_TUPLE_TIMESTAMP = "timestamp";
         String METRIC_TUPLE_TAGS = "tags";
         String METRIC_TUPLE_VALUE = "value";
-        int DEFAULT_BATCHSIZE = 100;
+        int DEFAULT_BATCH_SIZE = 100;
     }
 }
