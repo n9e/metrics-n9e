@@ -1,5 +1,9 @@
 package com.didiyun.n9e.metrics;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.didiyun.n9e.tools.HttpSender;
+import com.sun.istack.internal.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,32 +17,21 @@ public class N9ESender {
 
     // address是collector的地址，举例：http://127.0.0.1:2058/api/collector/push?nid=23
     private String address;
-    private int batchSize = 100;
+    private HttpSender httpSender;
+    private int batchSize = N9ESenderConstant.DEFAULT_BATCH_SIZE;
     private List<MetricTuple> metrics = new LinkedList<MetricTuple>();
 
-    public N9ESender(String address) {
+    public N9ESender(@NotNull String address) {
         this.address = address;
+        this.httpSender = new HttpSender(address);
     }
 
-    public N9ESender(String address, int batchSize) {
+    public N9ESender(@NotNull String address, @NotNull int batchSize) {
         this.address = address;
-        this.batchSize = batchSize;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
+        if (batchSize > 1) {
+            this.batchSize = batchSize;
+        }
+        this.httpSender = new HttpSender(address);
     }
 
     @Override
@@ -59,15 +52,9 @@ public class N9ESender {
     }
 
     private void writeMetrics() throws IOException {
-        if (metrics.size() == 0) {
-            return;
-        }
-
         try {
             post();
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Wrote {} metrics", metrics.size());
-            }
+            LOGGER.debug("Wrote {} metrics", metrics.size());
         } catch (IOException e) {
             throw e;
         } finally {
@@ -78,7 +65,6 @@ public class N9ESender {
     }
 
     /*
-     * TODO: item.name就是metric，整理成json array，发送即可
      * e.g.
      * [
      *   {
@@ -91,9 +77,28 @@ public class N9ESender {
      *
      * */
     private void post() throws IOException {
+        if (metrics == null || metrics.isEmpty()) return;
+        JSONArray arrayJson = new JSONArray();
         for (MetricTuple item : metrics) {
-            System.out.println(item.toString());
+            JSONObject itemJson = new JSONObject();
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_METRIC, item.getName());
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_TAGS, item.getTags());
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_VALUE, item.getValue());
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_TIMESTAMP, item.getTimestamp());
+            arrayJson.add(itemJson);
         }
+
+        httpSender.postJSON(arrayJson.toJSONString());
     }
 
+    /**
+     * N9ESender常量数据
+     * */
+    private interface N9ESenderConstant {
+        String METRIC_TUPLE_METRIC = "metric";
+        String METRIC_TUPLE_TIMESTAMP = "timestamp";
+        String METRIC_TUPLE_TAGS = "tags";
+        String METRIC_TUPLE_VALUE = "value";
+        int DEFAULT_BATCH_SIZE = 100;
+    }
 }
