@@ -2,16 +2,26 @@ package com.didiyun.n9e.metrics;
 
 public class MetricTuple {
 
+    private String endpoint;
     private String name;
     private String tags;
     private long timestamp;
     private Object value;
 
-    public MetricTuple(String name, String tags, Object value, long timestamp) {
+    public MetricTuple(String endpoint, String name, String tags, Object value, long timestamp) {
+        this.endpoint = endpoint;
         this.name = name;
         this.tags = tags;
         this.value = value;
         this.timestamp = timestamp;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     public String getName() {
@@ -49,7 +59,8 @@ public class MetricTuple {
     @Override
     public String toString() {
         return "MetricTuple{" +
-                "name='" + name + '\'' +
+                "endpoint='" + endpoint + '\'' +
+                ", name='" + name + '\'' +
                 ", tags='" + tags + '\'' +
                 ", timestamp=" + timestamp +
                 ", value=" + value +

@@ -19,10 +19,9 @@ public class HttpSenderExample {
         JSONObject obj = new JSONObject();
         obj.put("daxaing","MMMMMM");
         try{
-            sender.sendHttp(obj.toJSONString());
+            sender.postJSON(obj.toJSONString());
         }catch (Exception e){
-            System.out.println("xxx/xx");
-            sender.writeContent(obj.toJSONString());
+            e.printStackTrace();
         }
     }
 
@@ -79,15 +78,12 @@ public class HttpSenderExample {
         });
     }
 
-
-
     public static Headers setHeaders() {
         okhttp3.Headers.Builder headersbuilder = new okhttp3.Headers.Builder();
         headersbuilder.add("Connection", "close");
         Headers headers = headersbuilder.build();
         return headers;
     }
-
 
     public static OkHttpClient getOkHttpClientInstance() {
         if (okHttpClient == null) {

@@ -25,6 +25,7 @@ public class N9EReporter extends ScheduledReporter {
         private Clock clock;
         private String prefix;
         private String tags;
+        private String endpoint;
         private TimeUnit rateUnit;
         private TimeUnit durationUnit;
         private MetricFilter filter;
@@ -34,6 +35,7 @@ public class N9EReporter extends ScheduledReporter {
             this.clock = Clock.defaultClock();
             this.prefix = null;
             this.tags = "";
+            this.endpoint = "";
             this.rateUnit = TimeUnit.SECONDS;
             this.durationUnit = TimeUnit.MILLISECONDS;
             this.filter = MetricFilter.ALL;
@@ -51,6 +53,11 @@ public class N9EReporter extends ScheduledReporter {
 
         public Builder withTags(String tags) {
             this.tags = tags;
+            return this;
+        }
+
+        public Builder withEndpoint(String endpoint) {
+            this.endpoint = endpoint;
             return this;
         }
 
@@ -76,6 +83,7 @@ public class N9EReporter extends ScheduledReporter {
                     clock,
                     prefix,
                     tags,
+                    endpoint,
                     rateUnit,
                     durationUnit,
                     filter);
@@ -88,12 +96,14 @@ public class N9EReporter extends ScheduledReporter {
     private final Clock clock;
     private final String prefix;
     private final String tags;
+    private final String endpoint;
 
     private N9EReporter(MetricRegistry registry,
                         N9ESender n9eSender,
                         Clock clock,
                         String prefix,
                         String tags,
+                        String endpoint,
                         TimeUnit rateUnit,
                         TimeUnit durationUnit,
                         MetricFilter filter) {
@@ -102,6 +112,7 @@ public class N9EReporter extends ScheduledReporter {
         this.clock = clock;
         this.prefix = prefix;
         this.tags = tags;
+        this.endpoint = endpoint;
     }
 
     @Override
@@ -196,14 +207,14 @@ public class N9EReporter extends ScheduledReporter {
     }
 
     private void send(String name, Object value, long timestamp) throws IOException {
-        n9eSender.send(name, tags, value, timestamp);
+        n9eSender.send(endpoint, name, tags, value, timestamp);
     }
 
     private void send(String name, Object value, long timestamp, String tags) throws IOException {
         if (this.tags == null || "".equals(this.tags)) {
-            n9eSender.send(name, tags, value, timestamp);
+            n9eSender.send(endpoint, name, tags, value, timestamp);
         } else {
-            n9eSender.send(name, this.tags + "," + tags, value, timestamp);
+            n9eSender.send(endpoint, name, this.tags + "," + tags, value, timestamp);
         }
     }
 }

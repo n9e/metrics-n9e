@@ -43,8 +43,8 @@ public class N9ESender {
         writeMetrics();
     }
 
-    public void send(String metric, String tags, Object value, long timestamp) throws IOException {
-        metrics.add(new MetricTuple(metric, tags, value, timestamp));
+    public void send(String endpoint, String metric, String tags, Object value, long timestamp) throws IOException {
+        metrics.add(new MetricTuple(endpoint, metric, tags, value, timestamp));
 
         if (metrics.size() >= batchSize) {
             writeMetrics();
@@ -81,6 +81,7 @@ public class N9ESender {
         JSONArray arrayJson = new JSONArray();
         for (MetricTuple item : metrics) {
             JSONObject itemJson = new JSONObject();
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_ENDPOINT, item.getEndpoint());
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_METRIC, item.getName());
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_TAGS, item.getTags());
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_VALUE, item.getValue());
@@ -95,6 +96,7 @@ public class N9ESender {
      * N9ESender常量数据
      * */
     private interface N9ESenderConstant {
+        String METRIC_TUPLE_ENDPOINT = "endpoint";
         String METRIC_TUPLE_METRIC = "metric";
         String METRIC_TUPLE_TIMESTAMP = "timestamp";
         String METRIC_TUPLE_TAGS = "tags";
