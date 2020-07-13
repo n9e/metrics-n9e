@@ -22,6 +22,7 @@ public class HistogramExample {
         N9EReporter reporter = N9EReporter.forRegistry(registry)
                 .withTags("service=n9e-judge,region=bj")
                 .withEndpoint(Hostname.get())
+                .withStep(60)
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .filter(MetricFilter.ALL)

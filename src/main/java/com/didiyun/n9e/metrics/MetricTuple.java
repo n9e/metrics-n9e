@@ -7,13 +7,15 @@ public class MetricTuple {
     private String tags;
     private long timestamp;
     private Object value;
+    private int step;
 
-    public MetricTuple(String endpoint, String name, String tags, Object value, long timestamp) {
+    public MetricTuple(String endpoint, String name, String tags, Object value, long timestamp, int step) {
         this.endpoint = endpoint;
         this.name = name;
         this.tags = tags;
         this.value = value;
         this.timestamp = timestamp;
+        this.step = step;
     }
 
     public String getEndpoint() {
@@ -56,6 +58,14 @@ public class MetricTuple {
         this.value = value;
     }
 
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+
     @Override
     public String toString() {
         return "MetricTuple{" +
@@ -64,6 +74,7 @@ public class MetricTuple {
                 ", tags='" + tags + '\'' +
                 ", timestamp=" + timestamp +
                 ", value=" + value +
+                ", step=" + step +
                 '}';
     }
 }

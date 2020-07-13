@@ -43,8 +43,8 @@ public class N9ESender {
         writeMetrics();
     }
 
-    public void send(String endpoint, String metric, String tags, Object value, long timestamp) throws IOException {
-        metrics.add(new MetricTuple(endpoint, metric, tags, value, timestamp));
+    public void send(String endpoint, String metric, String tags, Object value, long timestamp, int step) throws IOException {
+        metrics.add(new MetricTuple(endpoint, metric, tags, value, timestamp, step));
 
         if (metrics.size() >= batchSize) {
             writeMetrics();
@@ -86,6 +86,7 @@ public class N9ESender {
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_TAGS, item.getTags());
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_VALUE, item.getValue());
             itemJson.put(N9ESenderConstant.METRIC_TUPLE_TIMESTAMP, item.getTimestamp());
+            itemJson.put(N9ESenderConstant.METRIC_TUPLE_STEP, item.getStep());
             arrayJson.add(itemJson);
         }
 
@@ -101,6 +102,7 @@ public class N9ESender {
         String METRIC_TUPLE_TIMESTAMP = "timestamp";
         String METRIC_TUPLE_TAGS = "tags";
         String METRIC_TUPLE_VALUE = "value";
+        String METRIC_TUPLE_STEP = "step";
         int DEFAULT_BATCH_SIZE = 100;
     }
 }
